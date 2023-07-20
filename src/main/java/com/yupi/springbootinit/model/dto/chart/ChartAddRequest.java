@@ -1,14 +1,9 @@
-package com.yupi.springbootinit.model.dto.post;
+package com.yupi.springbootinit.model.dto.chart;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 创建请求
@@ -17,12 +12,16 @@ import java.util.List;
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @Data
-public class PostAddRequest implements Serializable {
-
+public class ChartAddRequest implements Serializable {
     /**
      * 分析目标
      */
     private String goal;
+
+    /**
+     * 名称
+     */
+    private String name;
 
     /**
      * 图标数据
@@ -33,6 +32,7 @@ public class PostAddRequest implements Serializable {
      * 图标类型
      */
     private String chartType;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

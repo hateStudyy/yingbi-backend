@@ -21,7 +21,7 @@ spring:
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
+    url: jdbc:mysql://localhost:3306/yubi
     username: root
     password: 123456
   # Redis 配置
@@ -90,3 +90,8 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+# 鱼聪明 ai 配置
+yuapi:
+  client:
+    access-key: m6z0mpzqrxg1zglc1g83dsa61zugpvzy
+    secret-key: g5oovfic57ouktt76tw6bpdloqyhokwy

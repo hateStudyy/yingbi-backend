@@ -1,7 +1,7 @@
 package com.yupi.springbootinit.model.dto.postfavour;
 
 import com.yupi.springbootinit.common.PageRequest;
-import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
+import com.yupi.springbootinit.model.dto.chart.ChartQueryRequest;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +19,7 @@ public class PostFavourQueryRequest extends PageRequest implements Serializable 
     /**
      * 帖子查询请求
      */
-    private PostQueryRequest postQueryRequest;
+    private ChartQueryRequest postQueryRequest;
 
     /**
      * 用户 id

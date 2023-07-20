@@ -1,18 +1,18 @@
 package com.yupi.springbootinit.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * 用户
- * @TableName user
+ * 图表信息表
+ * @TableName charts
  */
-@TableName(value ="user")
+@TableName(value ="chart")
 @Data
-public class User implements Serializable {
+public class Chart implements Serializable {
     /**
      * id
      */
@@ -20,34 +20,39 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 账号
+     * 用户id
      */
-    private String userAccount;
+    private Long userId;
 
     /**
-     * 密码
+     * 分析目标
      */
-    private String userPassword;
+    private String goal;
 
     /**
-     * 用户昵称
+     * 名称
      */
-    private String userName;
+    private String name;
 
     /**
-     * 用户头像
+     * 图标数据
      */
-    private String userAvatar;
+    private String chartDate;
 
     /**
-     * 用户简介
+     * 图标类型
      */
-    private String userProfile;
+    private String chartType;
 
     /**
-     * 用户角色：user/admin/ban
+     * 生成的图标数据
      */
-    private String userRole;
+    private String genChart;
+
+    /**
+     * 生成的分析结论
+     */
+    private String genResult;
 
     /**
      * 创建时间
