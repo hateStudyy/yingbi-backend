@@ -9,9 +9,18 @@ import lombok.Data;
 @Data
 public class BiResponse {
 
+    /**
+     * 生成图表
+     */
     private String genChart;
 
+    /**
+     * 分析结果
+     */
     private String genResult;
 
+    /**
+     * 图表id
+     */
     private Long chartId;
 }
