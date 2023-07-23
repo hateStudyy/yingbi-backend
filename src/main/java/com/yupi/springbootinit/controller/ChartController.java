@@ -14,6 +14,7 @@ import com.yupi.springbootinit.constant.UserConstant;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.exception.ThrowUtils;
 import com.yupi.springbootinit.manager.AiManager;
+import com.yupi.springbootinit.manager.RedisLimiterManage;
 import com.yupi.springbootinit.model.dto.chart.*;
 import com.yupi.springbootinit.model.entity.Chart;
 import com.yupi.springbootinit.model.entity.User;
@@ -53,6 +54,9 @@ public class ChartController {
     @Resource
     private AiManager aiManager;
 
+    @Resource
+    private RedisLimiterManage redisLimiterManage;
+
     private final static Gson GSON = new Gson();
 
 
@@ -82,10 +86,13 @@ public class ChartController {
         // 校验文件后缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
         // 使用糊涂工具类
-        List<String> validFileSuffixList = Arrays.asList("png", "jpg", "svg", "webp", "jpeg");
+        List<String> validFileSuffixList = Arrays.asList("xlsx");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR,"文件后缀非法");
 
         User loginUser = userService.getLoginUser(request);
+       //限流判断 每个用户一个限流器
+        redisLimiterManage.doRateLimiter("genChartByAi_" + loginUser.getId());
+
 
         // 接入鱼聪明ai
         long biModeId = 1659171950288818178L;
