@@ -32,6 +32,11 @@ spring:
     port: 6379
     timeout: 5000
     password: 123456
+  rabbitmq:
+    host: localhost
+    port: 5672
+    password: guest
+    username: guest
   # Elasticsearch 配置
   # todo 需替换配置，然后取消注释
 #  elasticsearch:
