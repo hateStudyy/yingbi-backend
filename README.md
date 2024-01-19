@@ -1,13 +1,17 @@
-# SpringBoot 项目初始模板
+# 智能AIGC项目
 
-> 作者：[程序员鱼皮](https://github.com/liyupi)
-> 仅分享于 [编程导航知识星球](https://yupi.icu)
+> 作者：[小包](https://space.bilibili.com/11338403?spm_id_from=333.1007.0.0)
 
-基于 Java SpringBoot 的项目初始模板，整合了常用框架和主流业务的示例代码。
+一个可操作ai生成图表的 springboot 项目
 
-只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
+# 项目部署
+本地启动 
+```
+java -jar E:\mavenprojects\yingbi-backend\target\yingbi-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+需要部署 redis rabbitmq mysql
 
-[toc]
+生产环境启动端口 8222
 
 ## 模板特点
 
