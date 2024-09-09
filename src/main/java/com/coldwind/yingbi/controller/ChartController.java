@@ -22,6 +22,7 @@ import com.coldwind.yingbi.model.enums.ChartStatusEnum;
 import com.coldwind.yingbi.model.vo.BiResponse;
 import com.coldwind.yingbi.service.ChartService;
 import com.coldwind.yingbi.service.UserService;
+import com.coldwind.yingbi.utils.CsvUtils;
 import com.coldwind.yingbi.utils.ExcelUtils;
 import com.coldwind.yingbi.utils.SqlUtils;
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -79,7 +81,7 @@ public class ChartController {
      */
     @PostMapping("/gen")
     public BaseResponse<BiResponse> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
-                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) throws IOException {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
@@ -95,7 +97,7 @@ public class ChartController {
         // 校验文件后缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
         // 使用糊涂工具类
-        List<String> validFileSuffixList = Arrays.asList("xlsx");
+        List<String> validFileSuffixList = Arrays.asList("xlsx","xls","csv");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR,"文件后缀非法");
 
         User loginUser = userService.getLoginUser(request);
@@ -126,7 +128,12 @@ public class ChartController {
         // 拼接原始数据
         userInput.append("原始数据：").append("\n");
         // 读取到用户上传的 excel 文件
-        String csvData = ExcelUtils.excelToCsv(multipartFile);
+        String csvData;
+        if ("csv".equals(suffix)) {
+            csvData = CsvUtils.convertCsvFile(multipartFile);
+        } else {
+            csvData = ExcelUtils.excelToCsv(multipartFile);
+        }
         userInput.append(csvData).append("\n");
 
         String doChart = aiManager.doChart(biModeId, userInput.toString());
@@ -170,7 +177,7 @@ public class ChartController {
      */
     @PostMapping("/gen/async")
     public BaseResponse<BiResponse> genChartByAiAsync (@RequestPart("file") MultipartFile multipartFile,
-                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+                                                 GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) throws IOException {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
@@ -186,7 +193,7 @@ public class ChartController {
         // 校验文件后缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
         // 使用糊涂工具类
-        List<String> validFileSuffixList = Arrays.asList("xlsx", "xls");
+        List<String> validFileSuffixList = Arrays.asList("xlsx", "xls", "csv");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR,"文件后缀非法");
 
         User loginUser = userService.getLoginUser(request);
@@ -217,7 +224,13 @@ public class ChartController {
         // 拼接原始数据
         userInput.append("原始数据：").append("\n");
         // 读取到用户上传的 excel 文件
-        String csvData = ExcelUtils.excelToCsv(multipartFile);
+        // 读取到用户上传的 excel 文件
+        String csvData;
+        if ("csv".equals(suffix)) {
+            csvData = CsvUtils.convertCsvFile(multipartFile);
+        } else {
+            csvData = ExcelUtils.excelToCsv(multipartFile);
+        }
         userInput.append(csvData).append("\n");
 
         // 保存图表（插入到数据库）
