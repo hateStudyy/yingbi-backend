@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 @Data
 public class GenChartByAiRequest implements Serializable {
+    // todo 接入多种 ai 模型
 
     /**
      * 名称
@@ -26,6 +27,11 @@ public class GenChartByAiRequest implements Serializable {
      * 图标类型
      */
     private String chartType;
+
+    /**
+     * AI 模型
+     */
+    private String aiModel;
 
     private static final long serialVersionUID = 1L;
 }

@@ -55,6 +55,11 @@ public class Chart implements Serializable {
     private String chartType;
 
     /**
+     * AI 模型
+     */
+    private String aiModel;
+
+    /**
      * 生成的图标数据
      */
     private String genChart;

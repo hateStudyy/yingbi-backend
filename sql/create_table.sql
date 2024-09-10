@@ -32,6 +32,7 @@ create table if not exists chart
     goal       text                               null comment '分析目标',
     chartDate  text                               null comment '图标数据',
     chartType  varchar(128)                       null comment '图标类型',
+    aiModel  varchar(128)                       null comment 'AI模型',
     genChart   text                               null comment '生成的图标数据',
     genResult  text                               null comment '生成的分析结论',
     status      varchar(128) not null default 'wait' comment 'wait,running,succeed,failed',
