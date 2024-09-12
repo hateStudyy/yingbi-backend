@@ -18,6 +18,7 @@ import com.coldwind.yingbi.manager.RedisLimiterManage;
 import com.coldwind.yingbi.model.dto.chart.*;
 import com.coldwind.yingbi.model.entity.Chart;
 import com.coldwind.yingbi.model.entity.User;
+import com.coldwind.yingbi.model.enums.AiModelEnum;
 import com.coldwind.yingbi.model.enums.ChartStatusEnum;
 import com.coldwind.yingbi.model.vo.BiResponse;
 import com.coldwind.yingbi.service.ChartService;
@@ -85,9 +86,12 @@ public class ChartController {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
+        String aiModel = genChartByAiRequest.getAiModel();
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR,"目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 10, ErrorCode.PARAMS_ERROR,"名称过长");
+        // 校验 aiModel 是否有效
+        ThrowUtils.throwIf(!AiModelEnum.isValidValue(aiModel), ErrorCode.PARAMS_ERROR, "AI模型无效");
         // 校验文件
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
@@ -103,7 +107,6 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
         //限流判断 每个用户一个限流器
         redisLimiterManage.doRateLimiter("genChartByAi_" + loginUser.getId());
-
 
         // 接入鱼聪明ai
         long biModeId = 1659171950288818178L;
@@ -136,7 +139,7 @@ public class ChartController {
         }
         userInput.append(csvData).append("\n");
 
-        String doChart = aiManager.doChart(biModeId, userInput.toString());
+        String doChart = aiManager.doChart(aiModel, biModeId,userInput.toString());
         String[] splits = doChart.split("【【【【【");
 
         if (splits.length < 3) {
@@ -154,6 +157,7 @@ public class ChartController {
         chart.setChartType(chartType);
         chart.setGenChart(genChart);
         chart.setGenResult(genResult);
+        chart.setAiModel(aiModel);
 
         boolean save = chartService.save(chart);
         ThrowUtils.throwIf(!save, ErrorCode.SYSTEM_ERROR,"图表保存失败！");
@@ -181,6 +185,7 @@ public class ChartController {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
+        String aiModel = genChartByAiRequest.getAiModel();
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR,"目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 10, ErrorCode.PARAMS_ERROR,"名称过长");
@@ -259,7 +264,7 @@ public class ChartController {
                 return;
             }
             // 调用 ai
-            String doChart = aiManager.doChart(biModeId, userInput.toString());
+            String doChart = aiManager.doChart(aiModel,biModeId, userInput.toString());
             String[] splits = doChart.split("【【【【【");
 
             if (splits.length < 3) {
@@ -303,6 +308,7 @@ public class ChartController {
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
+        String aiModel = genChartByAiRequest.getAiModel();
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR,"目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 10, ErrorCode.PARAMS_ERROR,"名称过长");

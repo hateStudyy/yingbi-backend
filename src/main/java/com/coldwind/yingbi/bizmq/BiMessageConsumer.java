@@ -60,7 +60,7 @@ public class BiMessageConsumer {
             return;
         }
         // 调用 ai
-        String doChart = aiManager.doChart(CommonConstant.BI_MODEL_ID ,buildUserInput(chart));
+        String doChart = aiManager.doChart("yucongming",CommonConstant.BI_MODEL_ID ,buildUserInput(chart));
         String[] splits = doChart.split("【【【【【");
 
         if (splits.length < 3) {
