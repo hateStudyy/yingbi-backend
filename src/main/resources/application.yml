@@ -99,3 +99,5 @@ yuapi:
   client:
     access-key: m6z0mpzqrxg1zglc1g83dsa61zugpvzy
     secret-key: g5oovfic57ouktt76tw6bpdloqyhokwy
+openai:
+  api-key: xxx
