@@ -26,7 +26,6 @@ import com.coldwind.yingbi.service.UserService;
 import com.coldwind.yingbi.utils.CsvUtils;
 import com.coldwind.yingbi.utils.ExcelUtils;
 import com.coldwind.yingbi.utils.SqlUtils;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -42,8 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * 帖子接口
- *
+ * 帖子接口（核心组件）
  * EL PSY CONGGROO
  */
 @RestController
@@ -69,20 +67,19 @@ public class ChartController {
     @Resource
     private BiMessageProducer biMessageProducer;
 
-    private final static Gson GSON = new Gson();
-
 
     /**
-     * 文件上传(同步)
+     * 使用 AI 生成图表（同步）
      *
-     * @param multipartFile
-     * @param genChartByAiRequest
-     * @param request
-     * @return
+     * @param multipartFile 数据文件
+     * @param genChartByAiRequest 图表请求参数
+     * @param request request
+     * @return 基础响应
      */
     @PostMapping("/gen")
     public BaseResponse<BiResponse> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
                                                  GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) throws IOException {
+        // 取出属性
         String name = genChartByAiRequest.getName();
         String goal = genChartByAiRequest.getGoal();
         String chartType = genChartByAiRequest.getChartType();
@@ -90,7 +87,7 @@ public class ChartController {
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR,"目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 10, ErrorCode.PARAMS_ERROR,"名称过长");
-        // 校验 aiModel 是否有效
+        // aiModel 是否有效
         ThrowUtils.throwIf(!AiModelEnum.isValidValue(aiModel), ErrorCode.PARAMS_ERROR, "AI模型无效");
         // 校验文件
         long size = multipartFile.getSize();
@@ -104,12 +101,11 @@ public class ChartController {
         List<String> validFileSuffixList = Arrays.asList("xlsx","xls","csv");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR,"文件后缀非法");
 
+        // 限流判断
         User loginUser = userService.getLoginUser(request);
-        //限流判断 每个用户一个限流器
+        // 每个用户一个限流器
         redisLimiterManage.doRateLimiter("genChartByAi_" + loginUser.getId());
 
-        // 接入鱼聪明ai
-        long biModeId = 1659171950288818178L;
         // 分析需求:
         // 分析网站用户的增长情况
         // 原始数据:
@@ -139,7 +135,7 @@ public class ChartController {
         }
         userInput.append(csvData).append("\n");
 
-        String doChart = aiManager.doChart(aiModel, biModeId,userInput.toString());
+        String doChart = aiManager.doChart(aiModel, CommonConstant.BI_MODEL_ID,userInput.toString());
         String[] splits = doChart.split("【【【【【");
 
         if (splits.length < 3) {
@@ -174,10 +170,10 @@ public class ChartController {
     /**
      * 文件上传(异步)
      *
-     * @param multipartFile
-     * @param genChartByAiRequest
-     * @param request
-     * @return
+     * @param multipartFile 数据文件
+     * @param genChartByAiRequest 图表请求参数
+     * @param request request
+     * @return 基础响应
      */
     @PostMapping("/gen/async")
     public BaseResponse<BiResponse> genChartByAiAsync (@RequestPart("file") MultipartFile multipartFile,
@@ -189,6 +185,8 @@ public class ChartController {
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR,"目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 10, ErrorCode.PARAMS_ERROR,"名称过长");
+        // aiModel 是否有效
+        ThrowUtils.throwIf(!AiModelEnum.isValidValue(aiModel), ErrorCode.PARAMS_ERROR, "AI模型无效");
         // 校验文件
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
@@ -204,17 +202,6 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
        //限流判断 每个用户一个限流器
         redisLimiterManage.doRateLimiter("genChartByAi_" + loginUser.getId());
-
-
-        // 接入鱼聪明ai
-        long biModeId = 1659171950288818178L;
-        // 分析需求:
-        // 分析网站用户的增长情况
-        // 原始数据:
-        // 日期,用户数
-        // 1,20
-        // 2,30
-        // 3,100000
 
         // 构造用户输入
         StringBuilder userInput = new StringBuilder();
@@ -250,8 +237,6 @@ public class ChartController {
         boolean save = chartService.save(chart);
         ThrowUtils.throwIf(!save, ErrorCode.SYSTEM_ERROR,"图表保存失败！");
 
-
-
         // todo 建议处理任务队列满了后抛异常的情况
         CompletableFuture.runAsync(() -> {
 
@@ -264,7 +249,7 @@ public class ChartController {
                 return;
             }
             // 调用 ai
-            String doChart = aiManager.doChart(aiModel,biModeId, userInput.toString());
+            String doChart = aiManager.doChart(aiModel,CommonConstant.BI_MODEL_ID, userInput.toString());
             String[] splits = doChart.split("【【【【【");
 
             if (splits.length < 3) {
@@ -297,10 +282,10 @@ public class ChartController {
     /**
      * 文件上传(异步消息队列)
      *
-     * @param multipartFile
-     * @param genChartByAiRequest
-     * @param request
-     * @return
+     * @param multipartFile 数据文件
+     * @param genChartByAiRequest 图表请求参数
+     * @param request request
+     * @return 基础响应
      */
     @PostMapping("/gen/async/mq")
     public BaseResponse<BiResponse> genChartByAiAsyncMq (@RequestPart("file") MultipartFile multipartFile,
@@ -371,8 +356,6 @@ public class ChartController {
             log.error("更新图标失败状态失败" + chartId + "," + execMessage );
         }
     }
-
-    // region 增删改查
 
     /**
      * 创建

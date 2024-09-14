@@ -6,6 +6,7 @@ import com.theokanning.openai.service.OpenAiService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 @Service
@@ -31,11 +32,8 @@ public class ChatGptStrategy implements AiModelStrategy {
         System.setProperty("http.proxyHost", "127.0.0.1");
         System.setProperty("http.proxyPort", "58309");
 
-        // 设置 HTTPS 代理
-        System.setProperty("https.proxyHost", "127.0.0.1");
-        System.setProperty("https.proxyPort", "58309");
-
-        OpenAiService service = new OpenAiService(apiKey);
+        // 设置超时时间
+        OpenAiService service = new OpenAiService(apiKey, Duration.ofSeconds(120));
 
         // 创建 ChatCompletionRequest
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()

@@ -2,10 +2,10 @@
 # EL PSY CONGGROO
 
 -- 创建库
-create database if not exists yubi;
+create database if not exists yingbi;
 
 -- 切换库
-use yubi;
+use yingbi;
 
 -- 用户表
 create table if not exists user
